@@ -44,8 +44,10 @@ namespace PluginHost {
 
         virtual Core::hresult Clone(const string& basecallsign, const string& newcallsign) = 0;
     };
+} // PluginHost
 
-
+namespace Exchange {
+    // @stubgen:omit
     // @json
     struct EXTERNAL IControllerExt : public virtual Core::IUnknown {
         enum { ID = RPC::ID_CONTROLLER_EXT };
@@ -56,9 +58,11 @@ namespace PluginHost {
             ~INotification() override = default;
         };
 
+        ~IControllerExt() override = default;
+
         // Pushing notifications to interested sinks
-        virtual uint32_t Register(IController::INotification* sink) = 0;
-        virtual uint32_t Unregister(IController::INotification* sink) = 0;
+        virtual uint32_t Register(IControllerExt::INotification* sink) = 0;
+        virtual uint32_t Unregister(IControllerExt::INotification* sink) = 0;
 
         virtual uint32_t Activate(const string& callsign) = 0;
         virtual uint32_t Deactivate(const string& callsign) = 0;
@@ -89,5 +93,5 @@ namespace PluginHost {
         virtual uint32_t Configuration(const string& callsign /* @index */, string& configuration /* @out @opaque */) const = 0;
         virtual uint32_t Configuration(const string& callsign /* @index */, const string& configuration /* @opaque */) = 0;
     };
-} // namespace PluginHost
+} // namespace Exchange
 } // namespace WPEFramework

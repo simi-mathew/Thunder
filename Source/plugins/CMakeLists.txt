@@ -27,7 +27,7 @@ ProxyStubGenerator(NAMESPACE "WPEFramework::PluginHost" INPUT "${CMAKE_CURRENT_S
 ProxyStubGenerator(NAMESPACE "WPEFramework::PluginHost" INPUT "${CMAKE_CURRENT_SOURCE_DIR}/IStateControl.h" OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 ProxyStubGenerator(NAMESPACE "WPEFramework::PluginHost" INPUT "${CMAKE_CURRENT_SOURCE_DIR}/ISubSystem.h" OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
-JsonGenerator(CODE INPUT ${CMAKE_CURRENT_SOURCE_DIR}/IController.h OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/jsonrpc" INCLUDE_PATH ${CMAKE_SOURCE_DIR}/Source)
+JsonGenerator(CODE INPUT ${CMAKE_CURRENT_SOURCE_DIR}/IController.h OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/jsonrpc" INCLUDE_PATH ${CMAKE_SOURCE_DIR}/Source NO_INCLUDES)
 
 add_library(${TARGET} SHARED
         Channel.cpp
