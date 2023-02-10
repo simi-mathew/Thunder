@@ -19,8 +19,8 @@
 
 #pragma once
 #include "Module.h"
+#include "IShell.h"
 
-// @stubgen:include <com/IIteratorType.h>
 // @stubgen:include <plugins/IShell.h>
 
 namespace WPEFramework {
