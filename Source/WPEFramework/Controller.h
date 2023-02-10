@@ -23,13 +23,15 @@
 #include "Module.h"
 #include "PluginServer.h"
 #include "Probe.h"
-#include "json/JsonData_Controller.h"
+#include "IController.h"
+#include "JsonData_ControllerExt.h"
 
 namespace WPEFramework {
 namespace Plugin {
 
     class Controller 
         : public PluginHost::IController
+        , public Exchange::IControllerExt
         , public PluginHost::IPlugin
         , public PluginHost::IWeb
         , public PluginHost::JSONRPC {
@@ -144,7 +146,7 @@ namespace Plugin {
             }
             void Activated(const string& callsign, PluginHost::IShell* plugin) override
             {
-                _parent.event_statechange(callsign, PluginHost::IShell::ACTIVATED, plugin->Reason());
+                //_parent.event_statechange(callsign, PluginHost::IShell::ACTIVATED, plugin->Reason());
 
                 // Make sure the resumes 
                 _parent.StartupResume(callsign, plugin);
@@ -152,11 +154,11 @@ namespace Plugin {
             }
             void Deactivated(const string& callsign, PluginHost::IShell* plugin) override
             {
-                _parent.event_statechange(callsign, PluginHost::IShell::DEACTIVATED, plugin->Reason());
+                //_parent.event_statechange(callsign, PluginHost::IShell::DEACTIVATED, plugin->Reason());
             }
             void Unavailable(const string& callsign, PluginHost::IShell* plugin) override
             {
-                _parent.event_statechange(callsign, PluginHost::IShell::UNAVAILABLE, plugin->Reason());
+                //_parent.event_statechange(callsign, PluginHost::IShell::UNAVAILABLE, plugin->Reason());
             }
 
             BEGIN_INTERFACE_MAP(Sink)
@@ -239,15 +241,12 @@ namespace Plugin {
             , _lastReported()
             , _externalSubsystems()
         {
-            RegisterAll();
         }
         POP_WARNING();
 
     public:
         virtual ~Controller()
         {
-            UnregisterAll();
-
             // Attach to the SubSystems, we propagate the changes.
             PluginHost::ISubSystem* subSystems(_service->SubSystems());
 
@@ -359,6 +358,31 @@ namespace Plugin {
 
         Core::hresult Clone(const string& basecallsign, const string& newcallsign) override;
 
+        // IControllerExt methods
+        // -------------------------------------------------------------------------------------------------------
+        uint32_t Register(IControllerExt::INotification* sink) override;
+        uint32_t Unregister(IControllerExt::INotification* sink) override;
+
+        uint32_t Activate(const string& callsign) override;
+        uint32_t Deactivate(const string& callsign) override;
+        uint32_t Unavailable(const string& callsign) override;
+        uint32_t Suspend(const string& callsign) override;
+        uint32_t Resume(const string& callsign) override;
+        uint32_t Clone(const string& callsign, const string& newcallsign, string& response /* @out */) override;
+        uint32_t Harakiri() override;
+        uint32_t Proxies(string& response) const override;
+        uint32_t StartDiscovery(const uint8_t& ttl) override;
+
+        uint32_t Status(const string& index, string& response) const override;
+        uint32_t CallStack(const string& index, string& callstack) const override;
+        uint32_t Links(string& response) const override;
+        uint32_t ProcessInfo(string& response) const override;
+        uint32_t Subsystems(string& response) const override;
+        uint32_t DiscoveryResults(string& response) const override;
+        //uint32_t Environment(const string& index, string& environment) const override;
+        //uint32_t Configuration(const string& callsign, string& configuration) const override;
+        //uint32_t Configuration(const string& callsign, const string& configuration) override;
+
         //  IUnknown methods
         // -------------------------------------------------------------------------------------------------------
         BEGIN_INTERFACE_MAP(Controller)
@@ -391,31 +415,6 @@ namespace Plugin {
         Core::ProxyType<Web::Response> PutMethod(Core::TextSegmentIterator& index, const Web::Request& request);
         Core::ProxyType<Web::Response> DeleteMethod(Core::TextSegmentIterator& index, const Web::Request& request);
         void StartupResume(const string& callsign, PluginHost::IShell* plugin);
-
-        void RegisterAll();
-        void UnregisterAll();
-        uint32_t endpoint_suspend(const JsonData::Controller::ActivateParamsInfo& params);
-        uint32_t endpoint_resume(const JsonData::Controller::ActivateParamsInfo& params);
-        uint32_t endpoint_activate(const JsonData::Controller::ActivateParamsInfo& params);
-        uint32_t endpoint_clone(const JsonData::Controller::CloneParamsInfo& params, Core::JSON::String& response);
-        uint32_t endpoint_deactivate(const JsonData::Controller::ActivateParamsInfo& params);
-        uint32_t endpoint_unavailable(const JsonData::Controller::ActivateParamsInfo& params);
-        uint32_t endpoint_startdiscovery(const JsonData::Controller::StartdiscoveryParamsData& params);
-        uint32_t endpoint_storeconfig();
-        uint32_t endpoint_delete(const JsonData::Controller::DeleteParamsData& params);
-        uint32_t endpoint_harakiri();
-        uint32_t endpoint_proxies(Core::JSON::ArrayType<PluginHost::MetaData::COMRPC>& response);
-        uint32_t get_callstack(const string& index, Core::JSON::ArrayType<CallstackData>& response) const;
-        uint32_t get_status(const string& index, Core::JSON::ArrayType<PluginHost::MetaData::Service>& response) const;
-        uint32_t get_links(Core::JSON::ArrayType<PluginHost::MetaData::Channel>& response) const;
-        uint32_t get_processinfo(PluginHost::MetaData::Server& response) const;
-        uint32_t get_subsystems(Core::JSON::ArrayType<JsonData::Controller::SubsystemsParamsData>& response) const;
-        uint32_t get_discoveryresults(Core::JSON::ArrayType<PluginHost::MetaData::Bridge>& response) const;
-        uint32_t get_environment(const string& index, Core::JSON::String& response) const;
-        uint32_t get_configuration(const string& index, Core::JSON::String& response) const;
-        uint32_t set_configuration(const string& index, const Core::JSON::String& params);
-
-        void event_statechange(const string& callsign, const PluginHost::IShell::state& state, const PluginHost::IShell::reason& reason);
 
     private:
         Core::CriticalSection _adminLock;

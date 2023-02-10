@@ -21,11 +21,13 @@
 #include "Module.h"
 
 // @stubgen:include <com/IIteratorType.h>
+// @stubgen:include <plugins/IShell.h>
 
 namespace WPEFramework {
 namespace PluginHost {
 
-   struct EXTERNAL IController : public virtual Core::IUnknown {
+    // @json
+    struct EXTERNAL IController : public virtual Core::IUnknown {
 
         enum { ID = RPC::ID_CONTROLLER };
 
@@ -56,6 +58,7 @@ namespace Exchange {
         struct EXTERNAL INotification : virtual public Core::IUnknown {
             enum { ID = RPC::ID_CONTROLLER_EXT_NOTIFICATION };
             ~INotification() override = default;
+            virtual void StateChange(const string& callsign, const PluginHost::IShell::state& state, const PluginHost::IShell::reason& reason) = 0;
         };
 
         ~IControllerExt() override = default;
@@ -86,12 +89,6 @@ namespace Exchange {
         virtual uint32_t Subsystems(string& response /* @out @opaque */) const = 0;
         // @property
         virtual uint32_t DiscoveryResults(string& response /* @out @opaque */) const = 0;
-        // @property
-        virtual uint32_t Environment(const string& index /* @index */, string& environment /* @out */ ) const = 0;
-
-        // @property
-        virtual uint32_t Configuration(const string& callsign /* @index */, string& configuration /* @out @opaque */) const = 0;
-        virtual uint32_t Configuration(const string& callsign /* @index */, const string& configuration /* @opaque */) = 0;
     };
 } // namespace Exchange
 } // namespace WPEFramework

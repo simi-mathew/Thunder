@@ -24,7 +24,6 @@ set(ENABLE_INITSCRIPT_SUPPORT ON CACHE STRING "Enable init script(systemd/initd)
 
 add_executable(${TARGET}
         Controller.cpp
-        ControllerJsonRpc.cpp
         PluginHost.cpp
         PluginServer.cpp
         Probe.cpp
@@ -45,6 +44,12 @@ if (TREE_REFERENCE)
               -DTREE_REFERENCE=${TREE_REFERENCE}
             )
 endif()
+
+target_include_directories( ${TARGET}
+        PUBLIC
+	   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Source/plugins/generated/jsonrpc>
+        )
+
 
 if (EXCEPTION_CATCHING)
     set_source_files_properties( PluginServer.cpp PROPERTIES COMPILE_FLAGS "-fexceptions" )

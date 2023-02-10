@@ -19,6 +19,7 @@
 
 #include "Controller.h"
 #include "SystemInfo.h"
+#include "JControllerExt.h"
 
 namespace WPEFramework {
 
@@ -114,6 +115,8 @@ namespace Plugin {
         _service->Register(&_systemInfoReport);
         _service->EnableWebServer(_T("UI"), EMPTY_STRING);
 
+        Exchange::JControllerExt::Register(*this, this);
+
         // On succes return a name as a Callsign to be used in the URL, after the "service"prefix
         return (_T(""));
     }
@@ -121,6 +124,8 @@ namespace Plugin {
     /* virtual */ void Controller::Deinitialize(PluginHost::IShell* service)
     {
         ASSERT(_service == service);
+
+        Exchange::JControllerExt::Unregister(*this);
 
         // Detach the SubSystems, we are shutting down..
         PluginHost::ISubSystem* subSystems(_service->SubSystems());
@@ -143,6 +148,7 @@ namespace Plugin {
         service->DisableWebServer();
 
         RPC::ConnectorController::Instance().Revoke(service);
+
     }
 
     /* virtual */ string Controller::Information() const
@@ -632,7 +638,6 @@ namespace Plugin {
     void Controller::StartupResume(const string& callsign, PluginHost::IShell* plugin)
     {
         if (_resumes.size() > 0) {
-            string callsign(plugin->Callsign());
             std::list<string>::iterator index(_resumes.begin());
 
             ASSERT(_service != nullptr);
@@ -692,7 +697,7 @@ namespace Plugin {
 #if THUNDER_RESTFULL_API
         PluginHost::MetaData response;
 #endif
-        Core::JSON::ArrayType<JsonData::Controller::SubsystemsParamsData> responseJsonRpc;
+        /*Core::JSON::ArrayType<JsonData::Controller::SubsystemsParamsData> responseJsonRpc;
         PluginHost::ISubSystem* subSystem = _service->SubSystems();
 
         // Now prepare a message for the Javascript world.
@@ -740,6 +745,7 @@ namespace Plugin {
 #endif
             Notify("subsystemchange", responseJsonRpc);
         }
+        */
     }
     /* virtual */ Core::ProxyType<Core::JSONRPC::Message> Controller::Invoke(const Core::JSONRPC::Context& context, const Core::JSONRPC::Message& inbound)
     {
@@ -750,8 +756,8 @@ namespace Plugin {
 
         if (callsign.empty() || (callsign == PluginHost::JSONRPC::Callsign())) {
             response = PluginHost::JSONRPC::Invoke(context, inbound);
-		} else {
-			Core::ProxyType<PluginHost::Server::Service> service;
+                } else {
+                        Core::ProxyType<PluginHost::Server::Service> service;
 
             uint32_t result = _pluginServer->Services().FromIdentifier(callsign, service);
 
@@ -792,5 +798,107 @@ namespace Plugin {
 
         return (response);
     }
+    uint32_t  Controller::Register(Exchange::IControllerExt::INotification* sink)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Unregister(Exchange::IControllerExt::INotification* sink)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Activate(const string& callsign)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Deactivate(const string& callsign)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Unavailable(const string& callsign)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Suspend(const string& callsign)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Resume(const string& callsign)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Clone(const string& callsign, const string& newcallsign, string& response)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Harakiri()
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Proxies(string& response) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::StartDiscovery(const uint8_t& ttl)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Status(const string& index, string& response) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::CallStack(const string& index, string& callstack) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Links(string& response) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::ProcessInfo(string& response) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Subsystems(string& response) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::DiscoveryResults(string& response) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+#if 0
+    uint32_t  Controller::Environment(const string& index, string& environment) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Configuration(const string& callsign, string& configuration) const
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+    uint32_t  Controller::Configuration(const string& callsign, const string& configuration)
+    {
+        uint32_t status = Core::ERROR_NONE;
+        return status;
+    }
+#endif
 }
 }
